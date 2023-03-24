@@ -75,24 +75,24 @@ namespace PressureRelief
                     // create Kafka client
                     var config = new ProducerConfig
                     {
-                        BootstrapServers = Environment.GetEnvironmentVariable("BROKER_NAME") + ":9093",
+                        BootstrapServers = Environment.GetEnvironmentVariable("BROKERNAME") + ":9093",
                         MessageTimeoutMs = 10000,
                         SecurityProtocol = SecurityProtocol.SaslSsl,
                         SaslMechanism = SaslMechanism.Plain,
-                        SaslUsername = Environment.GetEnvironmentVariable("BROKER_USERNAME"),
-                        SaslPassword = Environment.GetEnvironmentVariable("BROKER_PASSWORD"),
+                        SaslUsername = Environment.GetEnvironmentVariable("ADX.USERNAME"),
+                        SaslPassword = Environment.GetEnvironmentVariable("PASSWORD"),
                     };
                     producer = new ProducerBuilder<Null, string>(config).Build();
 
                     var conf = new ConsumerConfig
                     {
                         GroupId = Guid.NewGuid().ToString(),
-                        BootstrapServers = Environment.GetEnvironmentVariable("BROKER_NAME") + ":9093",
+                        BootstrapServers = Environment.GetEnvironmentVariable("BROKERNAME") + ":9093",
                         AutoOffsetReset = AutoOffsetReset.Earliest,
                         SecurityProtocol = SecurityProtocol.SaslSsl,
                         SaslMechanism = SaslMechanism.Plain,
-                        SaslUsername = Environment.GetEnvironmentVariable("BROKER_USERNAME"),
-                        SaslPassword = Environment.GetEnvironmentVariable("BROKER_PASSWORD")
+                        SaslUsername = Environment.GetEnvironmentVariable("ADX.USERNAME"),
+                        SaslPassword = Environment.GetEnvironmentVariable("PASSWORD")
                     };
                     consumer = new ConsumerBuilder<Ignore, byte[]>(conf).Build();
 

@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (console)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/bin/Debug/net6.0/Station.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
+        },
+        {
+            "name": "Attach to .NET Functions",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:azureFunctions.pickProcess}"
+        },
+        {
+            "name": "Launch .NET Core in Docker",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "Run Docker Container",
+            "netCore": {
+              "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj"
+            }
+        }
+    ]
+}
