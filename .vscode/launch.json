@@ -10,7 +10,15 @@
             "args": [],
             "cwd": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station",
             "console": "internalConsole",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "env": {
+                "StationType": "assembly",
+                "StationURI": "opc.tcp://assembly.munich/",
+                "PowerConsumption": "200",
+                "CycleTime": "6",
+                "STORAGE_CONTAINER_NAME": "ontologies",
+                "STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=[yourstorageaccountname];AccountKey=[key];EndpointSuffix=core.windows.net"
+            }
         },
         {
             "name": ".NET Core Attach",
@@ -29,7 +37,15 @@
             "request": "launch",
             "preLaunchTask": "Run Docker Container",
             "netCore": {
-              "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj"
+              "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj",
+                "env": {
+                    "StationType": "assembly",
+                    "StationURI": "opc.tcp://assembly.munich/",
+                    "PowerConsumption": "200",
+                    "CycleTime": "6",
+                    "STORAGE_CONTAINER_NAME": "ontologies",
+                    "STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=[yourstorageaccountname];AccountKey=[key];EndpointSuffix=core.windows.net"
+                }
             }
         }
     ]

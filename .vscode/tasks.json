@@ -7,6 +7,19 @@
             "netCore": {
               "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj"
             },
+            "dependsOn": [
+                "Build Docker Image"
+            ]
+        },
+        {
+            "label": "Build Docker Image",
+            "type": "docker-build",
+            "dockerBuild": {
+                "dockerfile": "${workspaceFolder}\\Tools\\FactorySimulation\\OnPremAssets\\Station\\Dockerfile",
+                "context": "${workspaceFolder}\\Tools\\FactorySimulation\\OnPremAssets\\Station",
+                "pull": false,
+                "tag": "manufacturingontologies-dev:latest"
+            }
         },
         {
             "label": "build",
