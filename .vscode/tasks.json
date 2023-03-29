@@ -5,8 +5,8 @@
             "label": "Run Docker Container",
             "type": "docker-run",
             "netCore": {
-              "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj"
-            },
+                "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj"
+            }
         },
         {
             "label": "build",
@@ -119,6 +119,66 @@
             "command": "host start",
             "isBackground": true,
             "problemMatcher": "$func-dotnet-watch"
+        },
+        {
+            "type": "docker-build",
+            "label": "docker-build: debug",
+            "dependsOn": [
+                "build"
+            ],
+            "dockerBuild": {
+                "tag": "manufacturingontologies:dev",
+                "target": "base",
+                "dockerfile": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Dockerfile",
+                "context": "${workspaceFolder}",
+                "pull": true
+            },
+            "netCore": {
+                "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj"
+            }
+        },
+        {
+            "type": "docker-build",
+            "label": "docker-build: release",
+            "dependsOn": [
+                "build"
+            ],
+            "dockerBuild": {
+                "tag": "manufacturingontologies:latest",
+                "dockerfile": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Dockerfile",
+                "context": "${workspaceFolder}",
+                "pull": true
+            },
+            "netCore": {
+                "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj"
+            }
+        },
+        {
+            "type": "docker-run",
+            "label": "docker-run: debug",
+            "dependsOn": [
+                "docker-build: debug"
+            ],
+            "dockerRun": {
+                "os": "Windows"
+            },
+            "netCore": {
+                "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj",
+                "enableDebugging": true
+            }
+        },
+        {
+            "type": "docker-run",
+            "label": "docker-run: release",
+            "dependsOn": [
+                "docker-build: release"
+            ],
+            "dockerRun": {
+                "os": "Windows"
+            },
+            "netCore": {
+                "appProject": "${workspaceFolder}/Tools/FactorySimulation/OnPremAssets/Station/Station.csproj"
+            }
         }
     ]
 }

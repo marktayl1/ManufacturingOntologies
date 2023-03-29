@@ -3,5 +3,10 @@
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~4",
     "debug.internalConsoleOptions": "neverOpen",
-    "azureFunctions.preDeployTask": "publish (functions)"
+    "azureFunctions.preDeployTask": "publish (functions)",
+    "DockerRun.DisableDockerrc": true,
+    "DockerRun.Containers": [
+        "68aa90ddb042",
+        "553ab84d6a3b"
+    ]
 }
