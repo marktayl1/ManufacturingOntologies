@@ -21,3 +21,5 @@
 /Tools/FactorySimulation/OnPremAssets/Station/pki
 /Tools/FactorySimulation/OnPremAssets/Station/app/pki/own
 /Tools/FactorySimulation/OnPremAssets/Station/app/pki/trusted/certs
+
+.fake

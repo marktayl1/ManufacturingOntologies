@@ -25,7 +25,7 @@ spec:
         "kubernetes.io/os": linux
       containers:
       - name: mes
-        image: ghcr.io/digitaltwinconsortium/manufacturingontologies:main
+        image: docker.io/tejas7719/ontologies:0.0.7
         env:
         - name: StationType
           value: "MES"

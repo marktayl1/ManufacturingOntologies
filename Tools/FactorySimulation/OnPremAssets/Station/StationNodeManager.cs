@@ -1,14 +1,18 @@
 
 namespace Station.Simulation
 {
+    using Newtonsoft.Json;
     using Opc.Ua;
     using Opc.Ua.Export;
     using Opc.Ua.Server;
+    using Org.BouncyCastle.Crypto;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Text;
     using System.Threading;
+    using static System.Net.Mime.MediaTypeNames;
 
     public enum StationStatus : int
     {
@@ -57,6 +61,8 @@ namespace Station.Simulation
         private NodeId m_EnergyConsumptionID;
         private NodeId m_PressureID;
         private NodeId m_StatusID;
+        private StringBuilder csv;
+        private int csv_rowcount;
 
         public StationNodeManager(IServerInternal server, ApplicationConfiguration configuration)
         : base(server, configuration)
@@ -66,6 +72,9 @@ namespace Station.Simulation
             List<string> namespaceUris = new List<string>();
             namespaceUris.Add("http://opcfoundation.org/UA/Station/");
             NamespaceUris = namespaceUris;
+
+            csv = new StringBuilder();
+            csv_rowcount = 0;
 
             m_namespaceIndex = Server.NamespaceUris.GetIndexOrAppend(namespaceUris[0]);
             m_lastUsedId = 0;
@@ -77,7 +86,7 @@ namespace Station.Simulation
         {
             return new NodeId(Utils.IncrementIdentifier(ref m_lastUsedId), m_namespaceIndex);
         }
-         
+
         public override void CreateAddressSpace(IDictionary<NodeId, IList<IReference>> externalReferences)
         {
             lock (Lock)
@@ -89,7 +98,7 @@ namespace Station.Simulation
                 }
 
                 ImportNodeset2Xml(externalReferences, "Station.NodeSet2.xml");
-                        
+
                 AddReverseReferences(externalReferences);
             }
         }
@@ -120,7 +129,7 @@ namespace Station.Simulation
         {
             // add behaviour to our methods
             MethodState methodState = predefinedNode as MethodState;
-            if (( methodState != null) && (methodState.ModellingRuleId == null))
+            if ((methodState != null) && (methodState.ModellingRuleId == null))
             {
                 if (methodState.DisplayName == "Execute")
                 {
@@ -213,7 +222,7 @@ namespace Station.Simulation
                     m_StatusID = variableState.NodeId;
                 }
             }
-                       
+
             return predefinedNode;
         }
 
@@ -267,7 +276,7 @@ namespace Station.Simulation
         {
             m_faultClock.Stop();
             m_status = StationStatus.Ready;
-            
+
             UpdateNodeValues();
 
             return ServiceResult.Good;
@@ -284,6 +293,7 @@ namespace Station.Simulation
 
         private void UpdateNodeValues()
         {
+
             NodeState node = Find(m_NumberOfManufacturedProductsID);
             BaseDataVariableState variableState = node as BaseDataVariableState;
             if (variableState != null)
@@ -373,7 +383,7 @@ namespace Station.Simulation
                 variableState.Timestamp = DateTime.UtcNow;
                 variableState.ClearChangeMasks(SystemContext, false);
             }
-                        
+
             if (!m_faultClock.IsRunning)
             {
                 m_faultyTime = (ulong)m_faultClock.ElapsedMilliseconds;
@@ -382,7 +392,138 @@ namespace Station.Simulation
                     m_faultClock.Reset();
                 }
             }
+
+            //in your loop
+            var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20}",
+                m_numberOfManufacturedProducts,DateTime.UtcNow,m_numberOfDiscardedProducts, DateTime.UtcNow, m_productSerialNumber,DateTime.UtcNow,
+                m_energyConsumption,DateTime.UtcNow, m_faultyTime,DateTime.UtcNow, m_idealCycleTime,DateTime.UtcNow,
+                m_overallRunningTime, DateTime.UtcNow, m_pressure, DateTime.UtcNow, m_status,DateTime.UtcNow, m_faultyTime,DateTime.UtcNow);
+
+            csv.AppendLine(newLine);
+            csv_rowcount++;
+
+            if (csv_rowcount == 100)
+            {
+                // _ = Program._storage.StoreFileAsync("csv-data", Encoding.ASCII.GetBytes(csv.ToString()));
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string filePath = Path.Combine(baseDir, string.Format("SimulationData_{0}.csv",DateTime.UtcNow));
+                using (StreamWriter writer = new(filePath))
+                {
+                    writer.Write(csv);
+                }
+                csv.Clear();
+                csv_rowcount = 0;
+            }
         }
+
+        //private void UpdateNodeValues_Json()
+        //{
+        //    // Reading SimulationData Json file
+        //    //string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        //    //string filePath = Path.Combine(baseDir, "SimulationData.json");
+        //    //dynamic jsonData = JsonConvert.DeserializeObject<dynamic>(System.IO.File.ReadAllText(filePath));
+        //    //Program._storage.StoreFileAsync("SimulationData", jsonData.Encoding.UTF8.GetBytes(System.IO.File.ReadAllText(filePath)));
+
+
+        //    //NodeState node = Find(m_NumberOfManufacturedProductsID);
+        //    //BaseDataVariableState variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["NumberOfManufacturedProducts"];
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //node = Find(m_NumberOfDiscardedProductsID);
+        //    //variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["NumberOfDiscardedProducts"];
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //node = Find(m_ProductSerialNumberID);
+        //    //variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["ProductSerialNumber"];
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //node = Find(m_ActualCycleTimeID);
+        //    //variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["ActualCycleTime"]; //m_actualCycleTime;
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //node = Find(m_EnergyConsumptionID);
+        //    //variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["EnergyConsumption"]; //m_energyConsumption;
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //node = Find(m_FaultyTimeID);
+        //    //variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["FaultyTime"]; //m_faultyTime;
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //node = Find(m_IdealCycleTimeID);
+        //    //variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["IdealCycleTime"]; //m_idealCycleTime;
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //node = Find(m_OverallRunningTimeID);
+        //    //variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["OverallRunningTime"]; //m_overallRunningTime;
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //node = Find(m_PressureID);
+        //    //variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["Pressure"]; //m_pressure;
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //node = Find(m_StatusID);
+        //    //variableState = node as BaseDataVariableState;
+        //    //if (variableState != null)
+        //    //{
+        //    //    variableState.Value = jsonData["Status"]; //m_status;
+        //    //    variableState.Timestamp = DateTime.UtcNow;
+        //    //    variableState.ClearChangeMasks(SystemContext, false);
+        //    //}
+
+        //    //if (!m_faultClock.IsRunning)
+        //    //{
+        //    //    m_faultyTime = (ulong)m_faultClock.ElapsedMilliseconds;
+        //    //    if (m_faultClock.ElapsedMilliseconds != 0)
+        //    //    {
+        //    //        m_faultClock.Reset();
+        //    //    }
+        //    //}
+        //}
 
         public virtual void CalculateSimulationResult(bool stationFailure)
         {

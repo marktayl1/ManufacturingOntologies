@@ -25,7 +25,7 @@ spec:
         "kubernetes.io/os": linux
       containers:
       - name: ua-cloudpublisher
-        image: ghcr.io/barnstee/ua-cloudpublisher:main
+        image: docker.io/tejas7719/ua_cloudpublisher:0.0.7
         env:
         - name: USE_KAFKA
           value: "1"

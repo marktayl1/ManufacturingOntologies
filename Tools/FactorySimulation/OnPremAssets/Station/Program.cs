@@ -57,7 +57,7 @@ namespace Station.Simulation
 
         private static Timer m_timer = null;
 
-        private static AzureFileStorage _storage = new AzureFileStorage();
+        public static AzureFileStorage _storage = new AzureFileStorage();
 
         public static double PowerConsumption { get; set; }
 

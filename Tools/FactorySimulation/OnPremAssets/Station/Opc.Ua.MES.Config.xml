@@ -21,7 +21,7 @@
     <ApplicationCertificate>
       <StoreType>Directory</StoreType>
       <StorePath>./pki/own</StorePath>
-      <SubjectName>CN=UndefinedMESName</SubjectName>
+      <SubjectName>CN=MES.munich</SubjectName>
     </ApplicationCertificate>
     <TrustedIssuerCertificates>
       <StoreType>Directory</StoreType>

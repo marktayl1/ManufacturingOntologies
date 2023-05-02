@@ -1,18 +1,23 @@
 {
   "profiles": {
     "Station": {
-      "commandName": "Project"
-    },
-    "Docker": {
-      "commandName": "Docker",
+      "commandName": "Project",
       "environmentVariables": {
-        "StationType": "assembly",
-        "StationURI": "opc.tcp://assembly.munich/",
+        "StationType": "MES",
+        "StationURI":"opc.tcp://mes.munich/",
         "PowerConsumption": "200",
         "CycleTime": "6",
-        "STORAGE_CONTAINER_NAME": "ontologies",
+        "STORAGE_CONTAINER_NAME": "munich",
         "STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=[yourstorageaccountname];AccountKey=[key];EndpointSuffix=core.windows.net"
+        
       }
+    },
+    "Docker": {
+      "commandName": "Docker"
     }
+    //"Bridge to Kubernetes": {
+    //  "commandName": "AzureDevSpacesLocal",
+    //  "launchBrowser": true
+    //}
   }
 }

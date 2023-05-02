@@ -3,4 +3,20 @@
   <PropertyGroup>
     <ActiveDebugProfile>Docker</ActiveDebugProfile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <ItemGroup>
+    <DevSpacesDebugProfileUserSetting Include="Bridge to Kubernetes">
+      <ClusterSource>KUBECONFIG</ClusterSource>
+      <ClusterName>docker-desktop</ClusterName>
+      <Context>docker-desktop</Context>
+      <Namespace>munich</Namespace>
+      <ServiceName>test</ServiceName>
+      <RoutingHeader>
+      </RoutingHeader>
+      <LaunchUrl>http://localhost</LaunchUrl>
+      <LocalLaunchProfile>Station</LocalLaunchProfile>
+    </DevSpacesDebugProfileUserSetting>
+  </ItemGroup>
 </Project>
