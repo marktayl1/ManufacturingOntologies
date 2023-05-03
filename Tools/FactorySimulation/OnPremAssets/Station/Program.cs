@@ -10,6 +10,7 @@ namespace Station.Simulation
     using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -55,6 +56,11 @@ namespace Station.Simulation
         private const int c_waitTime = 60 * 1000;
         private const int c_connectTimeout = 300 * 1000;
 
+        private static StringBuilder csv_MES = new StringBuilder();
+        private static Timer max_MESFileSize;
+        private static string csv_MESFilePath;
+        private static bool csv_MESFileSize;
+
         private static Timer m_timer = null;
 
         public static AzureFileStorage _storage = new AzureFileStorage();
@@ -74,7 +80,10 @@ namespace Station.Simulation
 
                 if (Environment.GetEnvironmentVariable("StationType") == "MES")
                 {
+                    SetMESCsvHeader();
                     MES();
+                    // 15 minutes timer for CSV file max. size
+                    max_MESFileSize = new System.Threading.Timer(CreateMESCsvFilePath, null, 900000, 900000);
                 }
                 else
                 {
@@ -197,7 +206,8 @@ namespace Station.Simulation
                 m_quitEvent = new ManualResetEvent(false);
                 try
                 {
-                    Console.CancelKeyPress += (sender, eArgs) => {
+                    Console.CancelKeyPress += (sender, eArgs) =>
+                    {
                         m_quitEvent.Set();
                         eArgs.Cancel = true;
                     };
@@ -268,7 +278,7 @@ namespace Station.Simulation
                 byte[] keyFile = _storage.LoadFileAsync(keyFilePath).GetAwaiter().GetResult();
                 if (keyFile == null)
                 {
-                   Console.WriteLine("Could not load key file, creating a new one. This means the new cert generated from the key needs to be trusted by all OPC UA servers we connect to!");
+                    Console.WriteLine("Could not load key file, creating a new one. This means the new cert generated from the key needs to be trusted by all OPC UA servers we connect to!");
                 }
                 else
                 {
@@ -511,6 +521,13 @@ namespace Station.Simulation
                             Console.WriteLine("Argument error: Invalid station status type received!");
                             break;
                     }
+                    var csv = string.Format("{0},{1},{2},{3}",
+                                           "Assembly",
+                                           (StationStatus)m_statusTest,
+                                           m_serialNumber[c_Test],
+                                           DateTime.UtcNow);
+
+                    csv_MES.AppendLine(csv);
                 }
             }
             catch (Exception exception)
@@ -572,6 +589,14 @@ namespace Station.Simulation
                                 return;
                             }
                     }
+                    var csv = string.Format("{0},{1},{2},{3}",
+                                           "Test",
+                                           (StationStatus)m_statusTest,
+                                           m_serialNumber[c_Test],
+                                           DateTime.UtcNow);
+
+                    csv_MES.AppendLine(csv);
+
                 }
             }
             catch (Exception exception)
@@ -631,6 +656,13 @@ namespace Station.Simulation
                             Console.WriteLine("Argument error: Invalid station status type received!");
                             break;
                     }
+                    var csv = string.Format("{0},{1},{2},{3}",
+                                          "Packaging",
+                                          (StationStatus)m_statusTest,
+                                          m_serialNumber[c_Test],
+                                          DateTime.UtcNow);
+
+                    csv_MES.AppendLine(csv);
                 }
             }
             catch (Exception exception)
@@ -743,6 +775,26 @@ namespace Station.Simulation
             {
                 e.Accept = true;
             }
+        }
+
+        private static void SetMESCsvHeader()
+        {
+            var header = string.Format("{0},{1},{2},{3}",
+                                       "Station",
+                                       "Status",
+                                       "SerialNumber",
+                                       "Timestamp");
+
+            csv_MES.AppendLine(header);
+        }
+
+        private static void CreateMESCsvFilePath(object state)
+        {
+            Console.WriteLine("MES CSV maximum size time elapsed, set new file path");
+
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            csv_MESFilePath = Path.Combine(baseDir, string.Format("{0}-SimulationData-{1}.csv", Environment.GetEnvironmentVariable("StationType"), DateTime.UtcNow.ToString("yyyy-dd-M HH-mm-ss")));
+            csv_MESFileSize = true;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Station.Simulation
     using System.IO;
     using System.Text;
     using System.Threading;
+    using System.Timers;
     using static System.Net.Mime.MediaTypeNames;
 
     public enum StationStatus : int
@@ -44,7 +45,7 @@ namespace Station.Simulation
         private ulong m_numberOfDiscardedProducts = 0;
 
         private Stopwatch m_faultClock = new Stopwatch();
-        private Timer m_simulationTimer = null;
+        private System.Threading.Timer m_simulationTimer = null;
 
         private Random m_random = new Random();
 
@@ -62,7 +63,9 @@ namespace Station.Simulation
         private NodeId m_PressureID;
         private NodeId m_StatusID;
         private StringBuilder csv;
-        private int csv_rowcount;
+        private string csv_FilePath;
+        private bool max_CSVFileSize;
+        private System.Threading.Timer max_CSVTimer;
 
         public StationNodeManager(IServerInternal server, ApplicationConfiguration configuration)
         : base(server, configuration)
@@ -74,8 +77,9 @@ namespace Station.Simulation
             NamespaceUris = namespaceUris;
 
             csv = new StringBuilder();
-            csv_rowcount = 0;
-
+            SetCSVHeader();
+            // 15 minutes timer for CSV file max. size
+            max_CSVTimer = new System.Threading.Timer(CreateCSVFilePath, null, 900000, 900000);
             m_namespaceIndex = Server.NamespaceUris.GetIndexOrAppend(namespaceUris[0]);
             m_lastUsedId = 0;
 
@@ -255,7 +259,7 @@ namespace Station.Simulation
                 cycleTime = c_failureCycleTime + Convert.ToInt32(Math.Abs((double)c_failureCycleTime * NormalDistribution(m_random, 0.0, 1.0)));
             }
 
-            m_simulationTimer = new Timer(SimulationFinished, stationFailure, cycleTime, Timeout.Infinite);
+            m_simulationTimer = new System.Threading.Timer(SimulationFinished, stationFailure, cycleTime, Timeout.Infinite);
 
             UpdateNodeValues();
 
@@ -393,137 +397,38 @@ namespace Station.Simulation
                 }
             }
 
-            //in your loop
-            var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20}",
-                m_numberOfManufacturedProducts,DateTime.UtcNow,m_numberOfDiscardedProducts, DateTime.UtcNow, m_productSerialNumber,DateTime.UtcNow,
-                m_energyConsumption,DateTime.UtcNow, m_faultyTime,DateTime.UtcNow, m_idealCycleTime,DateTime.UtcNow,
-                m_overallRunningTime, DateTime.UtcNow, m_pressure, DateTime.UtcNow, m_status,DateTime.UtcNow, m_faultyTime,DateTime.UtcNow);
+            if (csv.Length.Equals(0))
+                SetCSVHeader();
+
+            Console.WriteLine("Appending data to CSV");
+
+            var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+                m_numberOfManufacturedProducts,
+                m_numberOfDiscardedProducts,
+                m_productSerialNumber,
+                m_energyConsumption,
+                m_ActualCycleTimeID,
+                m_faultyTime,
+                m_idealCycleTime,
+                m_overallRunningTime,
+                m_pressure,
+                m_status,
+                DateTime.UtcNow);
 
             csv.AppendLine(newLine);
-            csv_rowcount++;
 
-            if (csv_rowcount == 100)
+            if (max_CSVFileSize)
             {
                 // _ = Program._storage.StoreFileAsync("csv-data", Encoding.ASCII.GetBytes(csv.ToString()));
-                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string filePath = Path.Combine(baseDir, string.Format("SimulationData_{0}.csv",DateTime.UtcNow));
-                using (StreamWriter writer = new(filePath))
+                Console.WriteLine("Writing csv file {0}", csv_FilePath);
+                using (StreamWriter writer = new(csv_FilePath))
                 {
                     writer.Write(csv);
                 }
                 csv.Clear();
-                csv_rowcount = 0;
+                max_CSVFileSize = false;
             }
         }
-
-        //private void UpdateNodeValues_Json()
-        //{
-        //    // Reading SimulationData Json file
-        //    //string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        //    //string filePath = Path.Combine(baseDir, "SimulationData.json");
-        //    //dynamic jsonData = JsonConvert.DeserializeObject<dynamic>(System.IO.File.ReadAllText(filePath));
-        //    //Program._storage.StoreFileAsync("SimulationData", jsonData.Encoding.UTF8.GetBytes(System.IO.File.ReadAllText(filePath)));
-
-
-        //    //NodeState node = Find(m_NumberOfManufacturedProductsID);
-        //    //BaseDataVariableState variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["NumberOfManufacturedProducts"];
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //node = Find(m_NumberOfDiscardedProductsID);
-        //    //variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["NumberOfDiscardedProducts"];
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //node = Find(m_ProductSerialNumberID);
-        //    //variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["ProductSerialNumber"];
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //node = Find(m_ActualCycleTimeID);
-        //    //variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["ActualCycleTime"]; //m_actualCycleTime;
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //node = Find(m_EnergyConsumptionID);
-        //    //variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["EnergyConsumption"]; //m_energyConsumption;
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //node = Find(m_FaultyTimeID);
-        //    //variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["FaultyTime"]; //m_faultyTime;
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //node = Find(m_IdealCycleTimeID);
-        //    //variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["IdealCycleTime"]; //m_idealCycleTime;
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //node = Find(m_OverallRunningTimeID);
-        //    //variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["OverallRunningTime"]; //m_overallRunningTime;
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //node = Find(m_PressureID);
-        //    //variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["Pressure"]; //m_pressure;
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //node = Find(m_StatusID);
-        //    //variableState = node as BaseDataVariableState;
-        //    //if (variableState != null)
-        //    //{
-        //    //    variableState.Value = jsonData["Status"]; //m_status;
-        //    //    variableState.Timestamp = DateTime.UtcNow;
-        //    //    variableState.ClearChangeMasks(SystemContext, false);
-        //    //}
-
-        //    //if (!m_faultClock.IsRunning)
-        //    //{
-        //    //    m_faultyTime = (ulong)m_faultClock.ElapsedMilliseconds;
-        //    //    if (m_faultClock.ElapsedMilliseconds != 0)
-        //    //    {
-        //    //        m_faultClock.Reset();
-        //    //    }
-        //    //}
-        //}
 
         public virtual void CalculateSimulationResult(bool stationFailure)
         {
@@ -588,6 +493,33 @@ namespace Station.Simulation
 
             // random normal(mean,stdDev^2)
             return mean + stdDev * randStdNormal;
+        }
+
+        private void SetCSVHeader()
+        {
+            var header = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+               "NumberOfManufacturedProductsID",
+               "NumberOfDiscardedProductsID",
+               "ProductSerialNumberID",
+               "EnergyConsumptionID",
+               "ActualCycleTimeID",
+               "IdealCycleTimeID",
+               "OverallRunningTimeID",
+               "PressureID",
+               "StatusID",
+               "FaultyTimeID",
+               "Timestamp");
+
+            csv.AppendLine(header);
+        }
+
+        private void CreateCSVFilePath(object state)
+        {
+            Console.WriteLine("CSV maximum size time elapsed, set new file path");
+
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            csv_FilePath = Path.Combine(baseDir, string.Format("{0}-SimulationData-{1}.csv", Environment.GetEnvironmentVariable("StationType"), DateTime.UtcNow.ToString("yyyy-dd-M HH-mm-ss")));
+            max_CSVFileSize = true;
         }
     }
 }
