@@ -38,7 +38,7 @@ namespace Station.Simulation
         private static StationStatus m_statusTest = StationStatus.Ready;
         private static StationStatus m_statusPackaging = StationStatus.Ready;
 
-        private static ManualResetEvent m_quitEvent;
+        private static ManualResetEvent m_quitEvent, m_csvMESFileWriteEvent;
         private static DateTime m_lastActivity = DateTime.MinValue;
 
         private const int c_Assembly = 0;
@@ -82,8 +82,6 @@ namespace Station.Simulation
                 {
                     SetMESCsvHeader();
                     MES();
-                    // 15 minutes timer for CSV file max. size
-                    max_MESFileSize = new System.Threading.Timer(CreateMESCsvFilePath, null, 900000, 900000);
                 }
                 else
                 {
@@ -200,6 +198,10 @@ namespace Station.Simulation
 
                 // MESLogic method is executed periodically, with period c_updateRate
                 RestartTimer(c_updateRate);
+
+                // 15 minutes timer for CSV file max. size
+                max_MESFileSize = new System.Threading.Timer(CreateMESCsvFilePath, null, 900000, 900000);
+                m_csvMESFileWriteEvent = new ManualResetEvent(false);
 
                 Console.WriteLine("MES started. Press Ctrl-C to exit.");
 
@@ -521,6 +523,9 @@ namespace Station.Simulation
                             Console.WriteLine("Argument error: Invalid station status type received!");
                             break;
                     }
+                    if (csv_MESFileSize)
+                        m_csvMESFileWriteEvent.WaitOne();
+
                     var csv = string.Format("{0},{1},{2},{3}",
                                            "Assembly",
                                            (StationStatus)m_statusTest,
@@ -589,6 +594,9 @@ namespace Station.Simulation
                                 return;
                             }
                     }
+                    if (csv_MESFileSize)
+                        m_csvMESFileWriteEvent.WaitOne();
+
                     var csv = string.Format("{0},{1},{2},{3}",
                                            "Test",
                                            (StationStatus)m_statusTest,
@@ -656,6 +664,9 @@ namespace Station.Simulation
                             Console.WriteLine("Argument error: Invalid station status type received!");
                             break;
                     }
+                    if (csv_MESFileSize)
+                        m_csvMESFileWriteEvent.WaitOne();
+
                     var csv = string.Format("{0},{1},{2},{3}",
                                           "Packaging",
                                           (StationStatus)m_statusTest,
@@ -795,6 +806,18 @@ namespace Station.Simulation
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             csv_MESFilePath = Path.Combine(baseDir, string.Format("{0}-SimulationData-{1}.csv", Environment.GetEnvironmentVariable("StationType"), DateTime.UtcNow.ToString("yyyy-dd-M HH-mm-ss")));
             csv_MESFileSize = true;
+            Console.WriteLine("Writing csv file {0}", csv_MESFilePath);
+
+            using (StreamWriter writer = new(csv_MESFilePath))
+            {
+                writer.Write(csv_MES);
+            }
+            csv_MES.Clear();
+            SetMESCsvHeader();
+
+            csv_MESFileSize = false;
+            m_csvMESFileWriteEvent.Set();
+            Console.WriteLine("CSV Event Set");
         }
     }
 }
