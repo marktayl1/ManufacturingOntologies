@@ -529,7 +529,7 @@ namespace Station.Simulation
                     var csv = string.Format("{0},{1},{2},{3}",
                                            "Assembly",
                                            (StationStatus)m_statusTest,
-                                           m_serialNumber[c_Test],
+                                           m_serialNumber[c_Assembly],
                                            DateTime.UtcNow);
 
                     csv_MES.AppendLine(csv);
@@ -670,7 +670,7 @@ namespace Station.Simulation
                     var csv = string.Format("{0},{1},{2},{3}",
                                           "Packaging",
                                           (StationStatus)m_statusTest,
-                                          m_serialNumber[c_Test],
+                                          m_serialNumber[c_Packaging],
                                           DateTime.UtcNow);
 
                     csv_MES.AppendLine(csv);

@@ -408,11 +408,11 @@ namespace Station.Simulation
                 m_productSerialNumber,
                 m_energyConsumption,
                 m_ActualCycleTimeID,
-                m_faultyTime,
                 m_idealCycleTime,
                 m_overallRunningTime,
                 m_pressure,
                 m_status,
+                m_faultyTime,
                 DateTime.UtcNow);
 
             csv.AppendLine(newLine);
