@@ -410,7 +410,7 @@ namespace Station.Simulation
                     // a Notification should be generated. If so, the
                     // Notification is queued. If reporting is enabled,
                     // the queue is made available to the Subscription for transfer
-                    monitoredItem.StartNodeId = nodeId;
+                    monitoredItem.StartNodeId = m_station.StatusNode; //nodeId;
                     monitoredItem.AttributeId = Attributes.Value;
                     monitoredItem.DisplayName = nodeId.Identifier.ToString();
                     monitoredItem.MonitoringMode = MonitoringMode.Reporting;
@@ -420,6 +420,139 @@ namespace Station.Simulation
 
                     monitoredItem.Notification += handler;
                     subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.NumberOfManufacturedProductsNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.NumberOfDiscardedProductsNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.NumberOfDiscardedProductsNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.ProductSerialNumberNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.EnergyConsumptionNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.ActualCycleTimeNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.IdealCycleTimeNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.OverallRunningTimeNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.PressureNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
+                    monitoredItem = new MonitoredItem(subscription.DefaultItem);
+                    monitoredItem.StartNodeId = m_station.FaultyTimeNode;
+                    monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.DisplayName = nodeId.Identifier.ToString();
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 0;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+
+                    monitoredItem.Notification += handler;
+                    subscription.AddItem(monitoredItem);
+                    monitoredItem = null;
+
                     subscription.ApplyChanges();
 
                     return true;
@@ -526,7 +659,8 @@ namespace Station.Simulation
                     if (csv_MESFileSize)
                         m_csvMESFileWriteEvent.WaitOne();
 
-                    var csv = string.Format("{0},{1},{2},{3}",
+                    var csv = string.Format("{0},{1},{2},{3},{4}",
+                                           Environment.GetEnvironmentVariable("ProductionLineName"),
                                            "Assembly",
                                            (StationStatus)m_statusTest,
                                            m_serialNumber[c_Assembly],
@@ -597,7 +731,8 @@ namespace Station.Simulation
                     if (csv_MESFileSize)
                         m_csvMESFileWriteEvent.WaitOne();
 
-                    var csv = string.Format("{0},{1},{2},{3}",
+                    var csv = string.Format("{0},{1},{2},{3},{4}",
+                                           Environment.GetEnvironmentVariable("ProductionLineName"),
                                            "Test",
                                            (StationStatus)m_statusTest,
                                            m_serialNumber[c_Test],
@@ -667,7 +802,8 @@ namespace Station.Simulation
                     if (csv_MESFileSize)
                         m_csvMESFileWriteEvent.WaitOne();
 
-                    var csv = string.Format("{0},{1},{2},{3}",
+                    var csv = string.Format("{0},{1},{2},{3},{4}",
+                                          Environment.GetEnvironmentVariable("ProductionLineName"),
                                           "Packaging",
                                           (StationStatus)m_statusTest,
                                           m_serialNumber[c_Packaging],
@@ -790,7 +926,8 @@ namespace Station.Simulation
 
         private static void SetMESCsvHeader()
         {
-            var header = string.Format("{0},{1},{2},{3}",
+            var header = string.Format("{0},{1},{2},{3},{4}",
+                                       "ProductionLine",
                                        "Station",
                                        "Status",
                                        "SerialNumber",
@@ -804,7 +941,7 @@ namespace Station.Simulation
             Console.WriteLine("MES CSV maximum size time elapsed, set new file path");
 
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            csv_MESFilePath = Path.Combine(baseDir, string.Format("{0}-SimulationData-{1}.csv", Environment.GetEnvironmentVariable("StationType"), DateTime.UtcNow.ToString("yyyy-dd-M HH-mm-ss")));
+            csv_MESFilePath = Path.Combine(baseDir, string.Format("(0}-{1}-SimulationData-{2}.csv", Environment.GetEnvironmentVariable("ProductionLineName"), Environment.GetEnvironmentVariable("StationType"), DateTime.UtcNow.ToString("yyyy-dd-M HH-mm-ss")));
             csv_MESFileSize = true;
             Console.WriteLine("Writing csv file {0}", csv_MESFilePath);
 
